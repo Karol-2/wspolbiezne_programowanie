@@ -2,12 +2,9 @@ import os
 import time
 import errno
 
-
-# Wygenerowanie unikalnej nazwy pliku dla klienta
 client_filename = f"client_{os.getpid()}.txt"
 print("Nazwa pliku klienta: ", client_filename)
 
-# Tworzenie pliku zamkowego
 while True:
     try:
         # Otwarcie pliku wyłącznie (exclusively)
@@ -21,9 +18,7 @@ while True:
             print("Serwer zajęty, zaczekaj chwilę...")
             time.sleep(1)
 
-
-# Wprowadzanie tekstu przez klienta
-with open("bufor_serwera.txt","a") as bs:
+with open("bufor_serwera.txt", "a") as bs:
     bs.write(client_filename + "\n")
     while True:
         user_input = input("Wprowadź tekst (Esc, aby zakończyć): ")
@@ -32,7 +27,6 @@ with open("bufor_serwera.txt","a") as bs:
             break
 
         bs.write(user_input + "\n")
-
 
 while not os.path.exists(client_filename):
     print("Czekam na odpowiedź od serwera")

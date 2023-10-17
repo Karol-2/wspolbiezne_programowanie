@@ -6,17 +6,16 @@ import errno
 def main():
     while True:
         try:
-            lockfileExists = os.path.isfile("lockfile")
-            if lockfileExists:
+            lockfile_esists = os.path.isfile("lockfile")
+            if lockfile_esists:
                 break
         except OSError as e:
             if e.errno != errno.EEXIST:
                 print("Czekam na połączenie od klienta...")
                 raise
             time.sleep(0.05)
-    print("Lockfile znaleziony")
+    print("Nowy lockfile znaleziony!")
 
-    # Operacje zabezpieczone plikiem zamkowym
     while True:
         try:
             with open("bufor_serwera.txt", "r") as buffer_file:
@@ -28,15 +27,15 @@ def main():
             print("\nOtrzymana wiadomośc:")
             print(client_message)
 
-            # Generowanie odpowiedzi (wersja uproszczona)
-            response = "Serwer odczytal twoją wiadomosc!"
-            # response = input("Podaj odpowiedź serwera")
+            # response = "Serwer odczytal twoją wiadomosc!"
+            response = input("Podaj odpowiedź serwera: ")
 
             with open(client_filename, "w") as response_file:
                 response_file.write(response)
-
             print(f"Odpowiedź wysłana do klienta: {client_filename}")
+            print("\n Serwer czeka na dalsze połączenia...")
             break
+
         except FileNotFoundError:
             time.sleep(2)
         except PermissionError:
