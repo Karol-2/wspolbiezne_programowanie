@@ -45,4 +45,3 @@ with open(client_filename, "r") as response_file:
 os.close(fd)
 os.unlink("lockfile")
 os.remove(client_filename)
-# os.remove("client_buffer.txt")

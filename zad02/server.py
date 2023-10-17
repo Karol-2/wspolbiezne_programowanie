@@ -30,6 +30,7 @@ def main():
 
             # Generowanie odpowiedzi (wersja uproszczona)
             response = "Serwer odczytal twoją wiadomosc!"
+            # response = input("Podaj odpowiedź serwera")
 
             with open(client_filename, "w") as response_file:
                 response_file.write(response)
