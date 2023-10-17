@@ -11,6 +11,7 @@ while True:
     try:
         # Otwarcie pliku wyłącznie (exclusively)
         fd = os.open("lockfile", os.O_CREAT | os.O_EXCL | os.O_RDWR)
+        print("Lockfile utworzony")
         break
     except OSError as e:
         if e.errno != errno.EEXIST:
@@ -19,7 +20,7 @@ while True:
             print("Serwer zajęty, zaczekaj chwilę...")
             time.sleep(1)
 
-print("Lockfile utworzony")
+
 
 # Wprowadzanie tekstu przez klienta
 while True:
@@ -38,11 +39,11 @@ while not os.path.exists(client_filename):
     print("Czekam na odpowiedź od serwera")
     time.sleep(2)
 
-with open(client_filename,"r") as response_file:
+with open(client_filename, "r") as response_file:
     response = response_file.read()
-    print("odpowiedź od serwera: \n", response)
+    print("Odpowiedź od serwera: \n", response)
 
+os.close(fd)
 os.unlink("lockfile")
 os.remove(client_filename)
 os.remove("client_buffer.txt")
-os.remove("lockfile")

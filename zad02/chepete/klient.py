@@ -45,4 +45,3 @@ with open(client_filename, "r") as response_file:
 os.remove(client_filename)
 os.close(fd)
 os.unlink("lockfile")
-print("Koniec, plik zamkowy zlikwidowany")
