@@ -21,14 +21,12 @@ def main():
         try:
             with open("bufor_serwera.txt", "r") as buffer_file:
                 client_filename = buffer_file.readline().strip()
-                print(client_filename)
+                client_message = buffer_file.read()
 
             os.remove("bufor_serwera.txt")
-            # with open(client_filename, "r") as buffer_file:
-            #     client_message = buffer_file.read()
-            #
-            # print("Wiadomość od klienta:")
-            # print(client_message)
+
+            print("\nOtrzymana wiadomośc:")
+            print(client_message)
 
             # Generowanie odpowiedzi (wersja uproszczona)
             response = "Serwer odczytal twoją wiadomosc!"
@@ -40,6 +38,9 @@ def main():
             break
         except FileNotFoundError:
             time.sleep(2)
+        except PermissionError:
+            time.sleep(1)
+            continue
 
 
 while True:

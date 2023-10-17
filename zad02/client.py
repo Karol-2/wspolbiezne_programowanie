@@ -5,6 +5,7 @@ import errno
 
 # Wygenerowanie unikalnej nazwy pliku dla klienta
 client_filename = f"client_{os.getpid()}.txt"
+print("Nazwa pliku klienta: ", client_filename)
 
 # Tworzenie pliku zamkowego
 while True:
@@ -21,19 +22,17 @@ while True:
             time.sleep(1)
 
 
-
 # Wprowadzanie tekstu przez klienta
-while True:
-    user_input = input("Wprowadź tekst (Esc, aby zakończyć): ")
-    if user_input.lower() == "esc":
-        print("Zakończono wprowadzanie tekstu")
-        break
-    with open("client_buffer.txt", "a") as buffer_file:
-        buffer_file.write(user_input + "\n")
+with open("bufor_serwera.txt","a") as bs:
+    bs.write(client_filename + "\n")
+    while True:
+        user_input = input("Wprowadź tekst (Esc, aby zakończyć): ")
+        if user_input.lower() == "esc":
+            print("Zakończono wprowadzanie tekstu")
+            break
 
-# zapisanie nazwy pliku klienta w buforze serwera
-with open("bufor_serwera.txt","w") as buffer_file:
-    buffer_file.write(client_filename + "\n")
+        bs.write(user_input + "\n")
+
 
 while not os.path.exists(client_filename):
     print("Czekam na odpowiedź od serwera")
@@ -46,4 +45,4 @@ with open(client_filename, "r") as response_file:
 os.close(fd)
 os.unlink("lockfile")
 os.remove(client_filename)
-os.remove("client_buffer.txt")
+# os.remove("client_buffer.txt")
