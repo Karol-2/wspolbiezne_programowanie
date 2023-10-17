@@ -22,6 +22,7 @@ print("Lockfile created")
 while True:
     user_input = input("Wprowadź tekst (Esc, aby zakończyć): ")
     if user_input.lower() == "esc":
+        print("Zakończono wprowadzanie tekstu")
         break
     with open("client_buffer.txt", "a") as buffer_file:
         buffer_file.write(user_input + "\n")

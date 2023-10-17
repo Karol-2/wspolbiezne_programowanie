@@ -9,13 +9,13 @@ class FileLockException(Exception):
 while True:
     try:
         # Otwarcie pliku wyłącznie (exclusively)
-        fd = os.open("../lockfile", os.O_CREAT | os.O_EXCL | os.O_RDWR)
+        fd = os.open("lockfile", os.O_CREAT | os.O_EXCL | os.O_RDWR)
         break
     except OSError as e:
         if e.errno != errno.EEXIST:
             raise
         time.sleep(0.05)
-print("Lockfile created")
+print("Lockfile found")
 
 # Operacje zabezpieczone plikiem zamkowym
 while True:
@@ -37,6 +37,6 @@ while True:
         time.sleep(2)
 
 # Usuwanie pliku zamkowego
-os.close(fd)
 os.unlink("lockfile")
-print("Koniec, plik zamkowy zlikwidowany")
+os.remove("lockfile")
+print("Plik zamkowy zlikwidowany")
