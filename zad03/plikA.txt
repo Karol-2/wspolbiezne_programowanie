@@ -1,0 +1,10 @@
+Stoi na stacji lokomotywa,
+\input{plikB.txt}
+Wagony do niej podoczepiali,
+\input{plikD.txt}
+A tych wagonów jest ze czterdzieści.
+Sam nie wiem, co się w nich jeszcze mieści.
+Lecz choćby przyszło tysiąc atletów
+I każdy zjadłby z tysiąc kotletów,
+I każdy nie wiem jak się wytężał,
+To nie udźwigną, taki to ciężar.
