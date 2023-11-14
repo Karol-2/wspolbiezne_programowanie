@@ -1,0 +1,12 @@
+Wysyłanie sygnału SIGHUP:
+
+kill -SIGHUP PID
+Zamiast PID, podstaw rzeczywisty identyfikator procesu (PID) serwera.
+
+Wysyłanie sygnału SIGTERM:
+kill -SIGTERM PID
+Zamiast PID, podstaw rzeczywisty identyfikator procesu (PID) serwera.
+
+Wysyłanie sygnału SIGUSR1:
+kill -SIGUSR1 PID
+Zamiast PID, podstaw rzeczywisty identyfikator procesu (PID) serwera.
