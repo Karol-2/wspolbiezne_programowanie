@@ -1,5 +1,4 @@
 import os
-import sys
 import errno
 import time
 
@@ -32,7 +31,7 @@ def odczytaj_z_kolejki_klienta(sciezka_klienta):
 
 def main():
     # Tworzenie unikalnej ścieżki klienta na podstawie identyfikatora procesu
-    sciezka_klienta = "klient" + str(os.getpid())
+    sciezka_klienta = "klient_" + str(os.getpid())
 
     # Tworzenie kolejki fifo dla kienta
     try:
