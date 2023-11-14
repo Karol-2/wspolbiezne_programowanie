@@ -11,7 +11,7 @@ database = {
     4: "Szymański"
 }
 
-FIFO_PATH = "db_fifo"
+FIFO_PATH = "server_fifo"
 
 
 def create_fifo(fifo_path):
@@ -56,7 +56,6 @@ signal.signal(signal.SIGTERM, ignore_signal)
 signal.signal(signal.SIGUSR1, handle_sigusr1)
 print("PID:", os.getpid())
 
-# input()
 while True:
     for id, client_path in get_requests():
         query_result = database.get(id, "nie ma")

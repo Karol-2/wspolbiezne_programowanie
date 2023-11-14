@@ -3,54 +3,57 @@ import sys
 import errno
 import time
 
+SERVER_FIFO = "server_fifo"
 
-DB_FIFO = "db_fifo"
+
+def odczytaj_dane(fifo):
+    # Odczytuje dane do momentu napotkania (\n).
+    dane = b""
+    while not dane.endswith(b"\n"):
+        dane += os.read(fifo, 128)
+
+    return dane.decode()
 
 
-def create_fifo(fifo_path):
+def zapisz_do_kolejki_serwera(id, sciezka_klienta):
+    # Zapisuje id i ścieżkę klienta do pliku FIFO serwera.
+    fifo_baza_plik = os.open(SERVER_FIFO, os.O_WRONLY)
+    os.write(fifo_baza_plik, f"{id},{sciezka_klienta}\n".encode())  # Forma: id, ścieżka klienta znak nowej linii
+    os.close(fifo_baza_plik)
+
+
+def odczytaj_z_kolejki_klienta(sciezka_klienta):
+    # Odczytuje odpowiedź z serwera, korzystając z podanej ścieżki klienta.
+    fifo_plik_klient = os.open(sciezka_klienta, os.O_RDONLY)
+    dane = odczytaj_dane(fifo_plik_klient)
+    os.close(fifo_plik_klient)
+    return dane
+
+
+def main():
+    # Tworzenie unikalnej ścieżki klienta na podstawie identyfikatora procesu
+    sciezka_klienta = "klient" + str(os.getpid())
+
+    # Tworzenie kolejki fifo dla kienta
     try:
-        os.mkfifo(fifo_path)
+        os.mkfifo(sciezka_klienta)
     except OSError as oe:
         if oe.errno != errno.EEXIST:
             raise
 
+    id = input("Podaj szukane id: ")
 
-def wait_file(path):
-    while not os.path.exists(path):
-        time.sleep(0.5)
+    # Oczekiwanie na istnienie pliku FIFO bazy danych
+    while not os.path.exists(SERVER_FIFO):
+        time.sleep(1)
 
+    # Zapisanie id do bazy danych i odczytanie odpowiedzi
+    zapisz_do_kolejki_serwera(id, sciezka_klienta)
+    odpowiedz = odczytaj_z_kolejki_klienta(sciezka_klienta)
+    print("Odpowiedź:", odpowiedz)
 
-def read_data(fifo):
-    data = b""
-    while not data.endswith(b"\n"):
-        data += os.read(fifo, 128)
-
-    return data.decode()
-
-
-def write_to_db(id, client_path):
-    write_fifo = os.open(DB_FIFO, os.O_WRONLY)
-    os.write(write_fifo, f"{id},{client_path}\n".encode())
-    os.close(write_fifo)
+    os.remove(sciezka_klienta)  # Usunięcie pliku FIFO klienta
 
 
-def read_from_db():
-    read_fifo = os.open(client_path, os.O_RDONLY)
-    data = read_data(read_fifo)
-    os.close(read_fifo)
-    return data
-
-
-client_path = sys.argv[-1]
-if len(sys.argv) != 2:
-    print("Nieprawidłowa ilość argumentów")
-    sys.exit(1)
-
-create_fifo(client_path)
-
-id = input("Podaj ID: ")
-wait_file(DB_FIFO)
-write_to_db(id, client_path)
-print("Wynik:", read_from_db())
-
-os.remove(client_path)
+if __name__ == "__main__":
+    main()
