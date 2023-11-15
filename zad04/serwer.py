@@ -58,7 +58,7 @@ def main():
         requesty = przyjmij_requesty()
         for id, sciezka_klienta in requesty:
             wynik_zapytania = BAZA_DANYCH.get(id, "Nie ma!")
-            print(f"Odpowiedz: id-{id} sciezka-{sciezka_klienta} wynik-{wynik_zapytania}")
+            print(f"Odpowiedz: sciezka-{sciezka_klienta} wynik-{wynik_zapytania}")
 
             fifo = os.open(sciezka_klienta, os.O_WRONLY)
             os.write(fifo, f"{wynik_zapytania}\n".encode())
