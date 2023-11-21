@@ -3,65 +3,67 @@ import signal
 import sys
 import errno
 
-database = {
-    0: "Nowak",
-    1: "Kowalski",
-    2: "Rybak",
-    3: "Wiśniewska",
-    4: "Szymański"
-}
-
-FIFO_PATH = "db_fifo"
+BAZA_DANYCH = {0: "Krawczykiewicz", 1: "Radecka", 2: "Majcher"}
+SERVER_FIFO = "server_fifo"
 
 
-def create_fifo(fifo_path):
+def przyjmij_requesty():  # obsługa zadań z kolejki
+    content = ""
+
     try:
-        os.mkfifo(fifo_path)
+        os.mkfifo(SERVER_FIFO)
     except OSError as oe:
         if oe.errno != errno.EEXIST:
             raise
 
-
-def get_requests():
-    requests_str = ""
-
-    create_fifo(FIFO_PATH)
-
-    fifo = os.open(FIFO_PATH, os.O_RDONLY)
+    fifo = os.open(SERVER_FIFO, os.O_RDONLY)
 
     while input_str := os.read(fifo, 128).decode():
-        requests_str += input_str
+        content += input_str
 
     os.close(fifo)
 
-    requests = []
-    for r in requests_str.strip().split("\n"):
-        id, client_path = r.split(",")
-        requests.append((int(id), client_path))
+    requesty = []
+    for r in content.strip().split("\n"):
+        id, sciezka_klienta = r.split(",")
+        requesty.append((int(id), sciezka_klienta))
 
-    return requests
+    print("Tablica requestów: ", requesty)
+    return requesty
 
 
-def ignore_signal(signum, frame):
+def SIGTERM_handler(signum, frame):
+    print("SIGTERM")
     pass
 
 
-def handle_sigusr1(signum, frame):
-    os.remove(FIFO_PATH)
+def SIGHUP_handler(signum, frame):
+    print("SIGHUP")
+    pass
+
+
+def SIGUSR1_handler(signum, frame):
+    print("SIGUSR1")
+    os.remove(SERVER_FIFO)
     sys.exit(0)
 
 
-signal.signal(signal.SIGHUP, ignore_signal)
-signal.signal(signal.SIGTERM, ignore_signal)
-signal.signal(signal.SIGUSR1, handle_sigusr1)
-print("PID:", os.getpid())
+def main():
+    signal.signal(signal.SIGHUP, SIGHUP_handler)
+    signal.signal(signal.SIGTERM, SIGTERM_handler)
+    signal.signal(signal.SIGUSR1, SIGUSR1_handler)
+    print("Serwer oczekuje na requesty, pid:", os.getpid())
 
-# input()
-while True:
-    for id, client_path in get_requests():
-        query_result = database.get(id, "nie ma")
-        print(f"{id} {client_path}: {query_result}")
+    while True:
+        requesty = przyjmij_requesty()
+        for id, sciezka_klienta in requesty:
+            wynik_zapytania = BAZA_DANYCH.get(id, "Nie ma!")
+            print(f"Odpowiedz: sciezka-{sciezka_klienta} wynik-{wynik_zapytania}")
 
-        fifo = os.open(client_path, os.O_WRONLY)
-        os.write(fifo, f"{query_result}\n".encode())
-        os.close(fifo)
+            fifo = os.open(sciezka_klienta, os.O_WRONLY)
+            os.write(fifo, f"{wynik_zapytania}\n".encode())
+            os.close(fifo)
+
+
+if __name__ == "__main__":
+    main()
