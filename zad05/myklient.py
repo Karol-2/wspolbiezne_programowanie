@@ -5,7 +5,7 @@ import os
 input_queue_key = 1111
 output_queue_key = 6666
 
-# Tworzenie kolejek komunikatów
+# Kolejki komunikatów
 input_queue = sysv_ipc.MessageQueue(input_queue_key)
 output_queue = sysv_ipc.MessageQueue(output_queue_key)
 
@@ -16,7 +16,7 @@ pid = os.getpid()
 def send_request(word):
     # Wysyłanie zapytania do serwera
     request = f'{pid},{word}'
-    input_queue.send(request, type=0)
+    input_queue.send(request, type=int(pid))
 
 
 def receive_response():
@@ -26,6 +26,7 @@ def receive_response():
 
 
 if __name__ == "__main__":
+    print("Pid procesu: ", pid)
     word_to_translate = input("Podaj słowo do przetłumaczenia: ")
     # Wysyłanie zapytania do serwera
     send_request(word_to_translate)

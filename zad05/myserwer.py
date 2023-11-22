@@ -15,7 +15,8 @@ def polish_to_english(word):
     dictionary = {
         'kot': 'cat',
         'pies': 'dog',
-        'dom': 'house',
+        'papuga': 'parrot',
+        'wąż': 'snake',
     }
 
     return dictionary.get(word, 'Nie znam takiego słowa')
@@ -36,7 +37,11 @@ def handle_client_request(request):
 
 
 if __name__ == "__main__":
+    print("Serwer czeka na rządania")
+
     while True:
+        # time.sleep(10)
+
         # Odbierz zapytanie od klienta
         request, _ = input_queue.receive(type=0)
 
