@@ -49,7 +49,7 @@ def main(nazwa_pliku, slowo):
         pid = os.fork()
         print("Utworzono proces", pid, ',z pliku', nazwa_pliku, 'do pliku', plik_input)
         if pid == 0:
-            liczba_slow_dziecka = main(plik_input, slowo)  # odpalenie main dla kolejnego procesu
+            liczba_slow_dziecka = main(plik_input, slowo)  # odpalenie main.py dla kolejnego procesu
             sys.exit(liczba_slow_dziecka)
 
         else:
