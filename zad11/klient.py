@@ -25,7 +25,7 @@ def main():
 
             if response == "connect":
                 print("Polaczono z serwerem, czekamy na przeciwnika")
-                print("Mój adres to: ",client_address)
+                print("Mój adres to: ", client_address)
             elif response == "start":
                 print("GRA ROZPOCZĘTA")
                 shots_board = generate_shots_board(10, 10)
@@ -51,11 +51,12 @@ def main():
                 if is_ship_hit(board, int(x_coord), int(y_coords)):
                     is_successful = True
                     print("PRZECIWNIK TRAFIŁ W STATEK")
-                    update_board(board, int(x_coord), int(y_coords),"H")
+                    update_board(board, int(x_coord), int(y_coords), "H")
                     print_board(board, shots_board)
                 else:
                     is_successful = False
                     print("PRZECIWNIK UDERZYŁ W WODĘ")
+                    update_board(board, int(x_coord), int(y_coords), "M")
                     print_board(board, shots_board)
 
                 msg = "result;" + str(is_successful) + ';from;' + str(client_address) + ";coord;" + str(coords)
@@ -63,8 +64,8 @@ def main():
 
                 if has_game_ended(board):
                     print("GRA ZAKOŃCZONA, PORAŻKA")
-                    client_socket.sendto("koniec_wygrales".encode('utf-8'),server_address)
-                    exit()
+                    client_socket.sendto("koniec_wygrales".encode('utf-8'), server_address)
+                    play_again()
 
             elif response.lower().startswith("update"):
                 array = response.split(";")
@@ -72,30 +73,44 @@ def main():
                 result = array[2]
 
                 coords_array = ast.literal_eval(coords)
-
+                clear_console()
                 if result == "True":
                     print("Strzał na", coords_array, "jest TRAFNY!")
                     sign = "H"
                 else:
                     print("Strzał na", coords_array, "jest NIETRAFIONY!")
                     sign = "M"
-                input("Naciśnij ENTER by kontynuować")
+
                 update_board(shots_board, int(coords_array[0]), int(coords_array[1]), sign)
                 print_board(board, shots_board)
             elif response.lower() == "wygrana":
                 print("WYGRAŁEŚ!!!")
-                exit()
+                play_again()
             elif response == "koniec":
-                exit()
+                play_again()
+            else:
+                print("Oczekiwanie na ruch...")
     except socket.error as e:
         print(f"Wystąpił błąd: {e}")
     finally:
         client_socket.close()
 
 
+def play_again():
+    print("Czy chcesz zagrać jeszcze raz?")
+    res = input("Wpisz T lub N: ")
+    if res.lower() == 't':
+        main()
+    elif res.lower() == 'n':
+        exit()
+    else:
+        print("Niewłaściwe dane")
+        play_again()
+
+
 def has_game_ended(board):
     h_counter = 0
-   # MAX_NUMBER_OF_X = 20 TODO: uncomment this
+    # MAX_NUMBER_OF_X = 20 TODO: uncomment this
     MAX_NUMBER_OF_X = 3
     for row in board:
         for place in row:
@@ -151,12 +166,12 @@ def generate_shots_board(rows, cols):
 
 
 def print_board(board, shot_board):
-    clear_console()
-    separator = "=" * 100
+    separator = "=" * 80
     print(separator, "\n")
     print("Twoja plansza", "\t" * 4, "Twoje strzały")
+    print("  1 2 3 4 5 6 7 8 9 10 			   1 2 3 4 5 6 7 8 9 10")
     for rowB, rowS in zip(board, shot_board):
-        print(" ".join(rowB), "\t" * 3, " ".join(rowS))
+        print(board.index(rowB) + 1, " ".join(rowB), "\t" * 3, board.index(rowB) + 1, " ".join(rowS))
     print(separator, "\n")
 
 

@@ -3,7 +3,6 @@ import random
 import socket
 
 
-# jako drugi musi być koniec
 def main():
     IP = "127.0.0.1"
     PORT = 5001
@@ -48,8 +47,6 @@ def main():
                         server_socket.sendto("strzelasz".encode('utf-8'), second_address)
                         server_socket.sendto("czekasz".encode('utf-8'), first_address)
 
-                    # oczekiwanie na wiadomość zaczynającą się na 'strzal'
-
             elif mess.lower().startswith("strzal"):
 
                 array = mess.lower().split(';')
@@ -77,9 +74,6 @@ def main():
                 print("Aktualizuję u ", other_address)
                 mes = "update;" + coords + ";" + str(result)
 
-                print("this",tuple_sender)
-                print("other",other_address)
-
                 server_socket.sendto(mes.encode('utf-8'), other_address)
                 server_socket.sendto("czekasz".encode('utf-8'), other_address)
                 server_socket.sendto("strzelasz".encode('utf-8'), tuple_sender)
@@ -88,6 +82,7 @@ def main():
                 other_address = [addr for addr in players if addr != address]
                 if other_address:
                     server_socket.sendto("wygrana".encode('utf-8'), other_address[0])
+                    players = {}
 
             elif mess.lower() == "koniec":
                 other_address = [addr for addr in players if addr != address]
@@ -98,8 +93,17 @@ def main():
                 print(f"Gra zakończona przez gracza {address}.")
                 players = {}
 
+            else:
+                print("Czekam na połączenia...")
+
         except socket.error as e:
             print(f"Socket error: {e}")
+            other_address = [addr for addr in players]
+            if other_address:
+                message = "koniec".encode('utf-8')
+                for addr in other_address:
+                    server_socket.sendto(message, addr)
+
             players = {}
 
 
