@@ -55,9 +55,10 @@ def main():
                 array = mess.lower().split(';')
                 sender_address = array[1]
                 coords = array[0].replace(" ", "").removeprefix("strzal").replace("(", "").replace(")", "").split(",")
+                tuple_sender = ast.literal_eval(sender_address)
 
-                other_address = [addr for addr in players if addr != sender_address][0]
-                print("klient", sender_address, "strzela na koordynaty: ", coords)
+                other_address = [addr for addr in players if addr != tuple_sender][0]
+                print("klient", tuple_sender, "strzela na koordynaty: ", coords)
                 print("wysylam weryfikacje do", other_address)
 
                 mes = "check" + str(coords)
@@ -76,9 +77,12 @@ def main():
                 print("Aktualizuję u ", other_address)
                 mes = "update;" + coords + ";" + str(result)
 
+                print("this",tuple_sender)
+                print("other",other_address)
+
                 server_socket.sendto(mes.encode('utf-8'), other_address)
-                server_socket.sendto("strzelasz".encode('utf-8'), tuple_sender)
                 server_socket.sendto("czekasz".encode('utf-8'), other_address)
+                server_socket.sendto("strzelasz".encode('utf-8'), tuple_sender)
 
             elif mess.lower() == "koniec":
 
@@ -89,9 +93,6 @@ def main():
                 players.pop(address, None)
                 print(f"Gra zakończona przez gracza {address}. Oczekiwanie na nowych graczy...")
                 players = {}
-            # else:
-
-            # exit()
 
         except socket.error as e:
             print(f"Socket error: {e}")
