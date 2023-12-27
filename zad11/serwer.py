@@ -84,14 +84,18 @@ def main():
                 server_socket.sendto("czekasz".encode('utf-8'), other_address)
                 server_socket.sendto("strzelasz".encode('utf-8'), tuple_sender)
 
-            elif mess.lower() == "koniec":
-
+            elif mess.lower() == "koniec_wygrales":
                 other_address = [addr for addr in players if addr != address]
                 if other_address:
-                    server_socket.sendto("Gra zakończona przez przeciwnika".encode('utf-8'), other_address[0])
+                    server_socket.sendto("wygrana".encode('utf-8'), other_address[0])
+
+            elif mess.lower() == "koniec":
+                other_address = [addr for addr in players if addr != address]
+                if other_address:
+                    server_socket.sendto("koniec".encode('utf-8'), other_address[0])
 
                 players.pop(address, None)
-                print(f"Gra zakończona przez gracza {address}. Oczekiwanie na nowych graczy...")
+                print(f"Gra zakończona przez gracza {address}.")
                 players = {}
 
         except socket.error as e:

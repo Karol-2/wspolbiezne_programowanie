@@ -53,16 +53,18 @@ def main():
                     print("PRZECIWNIK TRAFIŁ W STATEK")
                     update_board(board, int(x_coord), int(y_coords),"H")
                     print_board(board, shots_board)
-                    # TODO: check here if game has ended
                 else:
                     is_successful = False
                     print("PRZECIWNIK UDERZYŁ W WODĘ")
-                    # update_board(board, int(x_coord), int(y_coords), "M")
                     print_board(board, shots_board)
 
-                # send successful message to server
                 msg = "result;" + str(is_successful) + ';from;' + str(client_address) + ";coord;" + str(coords)
                 client_socket.sendto(msg.encode('utf-8'), server_address)
+
+                if has_game_ended(board):
+                    print("GRA ZAKOŃCZONA, PORAŻKA")
+                    client_socket.sendto("koniec_wygrales".encode('utf-8'),server_address)
+                    exit()
 
             elif response.lower().startswith("update"):
                 array = response.split(";")
@@ -80,7 +82,9 @@ def main():
                 input("Naciśnij ENTER by kontynuować")
                 update_board(shots_board, int(coords_array[0]), int(coords_array[1]), sign)
                 print_board(board, shots_board)
-
+            elif response.lower() == "wygrana":
+                print("WYGRAŁEŚ!!!")
+                exit()
             elif response == "koniec":
                 exit()
     except socket.error as e:
@@ -91,7 +95,7 @@ def main():
 
 def has_game_ended(board):
     h_counter = 0
-   # MAX_NUMBER_OF_X = 20
+   # MAX_NUMBER_OF_X = 20 TODO: uncomment this
     MAX_NUMBER_OF_X = 3
     for row in board:
         for place in row:
