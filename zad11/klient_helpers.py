@@ -26,19 +26,24 @@ def is_ship_hit(board, x_coord, y_coord):
 
 
 def get_shot():
-    # TODO: napraw gdy poraz drugi dajemy input
-    # TODO: dodaj opcję z koniec
     try:
         print("Podaj swój strzał")
-        x_coord = int(input("Podaj koordynat x: "))
-        y_coord = int(input("Podaj koordynat y: "))
+        x_coord = input("Podaj koordynat x: ")
+        y_coord = input("Podaj koordynat y: ")
+        if x_coord == "koniec" or y_coord == "koniec":
+            return -1, -1, True
+
+        x_coord = int(x_coord)
+        y_coord = int(y_coord)
+
         if 1 <= x_coord <= 10 and 1 <= y_coord <= 10:
-            return x_coord, y_coord
+            return x_coord, y_coord, False
+
         print("Podaj wartość z przedziału 1-10!")
-        get_shot()
+        return get_shot()
     except ValueError:
         print("Podaj wartość liczbową z przedziału 1-10!")
-        get_shot()
+        return get_shot()
 
 
 def choose_board():

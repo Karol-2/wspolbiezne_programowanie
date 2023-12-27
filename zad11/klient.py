@@ -37,7 +37,12 @@ def main():
 
             elif response == "strzelasz":
                 print("Twoja kolej")
-                x_coord, y_coord = get_shot()
+                x_coord, y_coord, end_game = get_shot()
+                if end_game:
+                    print("KONIEC, PODDAJESZ SIĘ")
+                    client_socket.sendto("koniec_wygrales".encode('utf-8'), server_address)
+                    play_again()
+
                 message = "strzal " + "(" + str(x_coord) + "," + str(y_coord) + ");" + str(client_address)
                 client_socket.sendto(message.encode('utf-8'), server_address)
 
@@ -100,10 +105,10 @@ def main():
 def play_again():
     print("Czy chcesz zagrać jeszcze raz?")
     res = input("Wpisz T lub N: ")
-    # TODO: dodaj więcej opcji
-    if res.lower() == 't':
+
+    if res.lower() in ['t', 'tak', 'y', 'yes', 'continue']:
         main()
-    elif res.lower() == 'n':
+    elif res.lower() in ['n', 'nie', 'no', 'dont', 'exit', 'e', 'q']:
         exit()
     else:
         print("Niewłaściwe dane")
