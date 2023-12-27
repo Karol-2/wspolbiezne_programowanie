@@ -1,3 +1,4 @@
+import ast
 import socket
 
 import klient_boardsets as boards
@@ -7,13 +8,13 @@ def main():
     IP = "127.0.0.1"
     PORT = 5001
     BUF_SIZE = 1024
-    game = False
 
     client_socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
     server_address = (IP, PORT)
 
     try:
         client_socket.connect(server_address)
+        client_address = client_socket.getsockname()
 
         client_socket.sendto("connect".encode('utf-8'), server_address)
 
@@ -23,30 +24,63 @@ def main():
 
             if response == "connect":
                 print("Polaczono z serwerem, czekamy na przeciwnika")
-            elif response == "Start":
-                game = True
+            elif response == "start":
+                print("GRA ROZPOCZĘTA")
                 shots_board = generate_shots_board(10, 10)
                 show_rules()
                 board = choose_board()
                 print_board(board, shots_board)
 
-                # x, y = get_shot()
-                # if(is_ship_hit(board,x,y)):
-                #     update_board(board,x,y,"H")
-                #     update_board(shots_board,x,y,"H")
-                #     print_board(board,shots_board)
+            elif response == "czekasz":
+                print("Teraz jest kolej twojego przeciwnika, czekamy na ruch...")
 
-            if game:
-                choice = "koniec"
-                client_socket.sendto(choice.encode('utf-8'), server_address)
+            elif response == "strzelasz":
+                print("Twoja kolej")
+                x_coord, y_coord = get_shot()
+                message = "strzal " + "(" + str(x_coord) + "," + str(y_coord) + ");" + str(client_address)
+                client_socket.sendto(message.encode('utf-8'), server_address)
 
-                if choice.lower() == 'koniec':
-                    client_socket.close()
-                    print("Zakończyłeś grę.")
-                    break
+            elif response.startswith("check"):
+                coords = response.removeprefix("check").replace('[', '').replace(']', '').replace("'","").split(",")
+                x_coord = coords[0]
+                y_coords = coords[1]
+                print("Przeciwnik strzela na:", x_coord, ',', y_coords)
 
-                print("Czekanie na odpowiedź przeciwnika...")
+                if is_ship_hit(board, int(x_coord), int(y_coords)):
+                    is_successfull = True
+                    print("PRZECIWNIK TRAFIŁ W STATEK")
+                    update_board(board, int(x_coord), int(y_coords), "H")
+                    print_board(board, shots_board)
+                    # check here if game has ended
+                else:
+                    is_successfull = False
+                    print("PRZECIWNIK UDERZYŁ W WODĘ")
+                    update_board(board, int(x_coord), int(y_coords), "M")
+                    print_board(board, shots_board)
 
+                # send successful message to server
+                msg = "result;" + str(is_successfull) + ';from;' + str(client_address) + ";coord;" +str(coords)
+                client_socket.sendto(msg.encode('utf-8'), server_address)
+
+            elif response.lower().startswith("update"):
+                array = response.split(";")
+                coords = array[1]
+                result = array[2]
+
+                coords_array = ast.literal_eval(coords)
+
+                if result == "True":
+                    print("Strzał na",coords_array,"jest TRAFNY!")
+                    sign = "H"
+                else:
+                    print("Strzał na",coords_array,"jest NIETRAFIONY!")
+                    sign = "M"
+
+                update_board(shots_board,int(coords_array[0]),int(coords_array[1]),sign)
+                print_board(board,shots_board)
+
+            elif response == "koniec":
+                exit()
     except socket.error as e:
         print(f"Wystąpił błąd: {e}")
     finally:
@@ -112,6 +146,7 @@ def print_board(board, shot_board):
     for rowB, rowS in zip(board, shot_board):
         print(rowB, "\t" * 3, rowS)
     print("=" * 100, "\n")
+
 
 def show_rules():
     print("ROZPOCZYNAMY GRĘ")
