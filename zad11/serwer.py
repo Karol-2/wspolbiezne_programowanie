@@ -54,12 +54,13 @@ def main():
                 coords = array[0].replace(" ", "").removeprefix("strzal").replace("(", "").replace(")", "").split(",")
                 tuple_sender = ast.literal_eval(sender_address)
 
-                other_address = [addr for addr in players if addr != tuple_sender][0]
-                print("klient", tuple_sender, "strzela na koordynaty: ", coords)
-                print("wysylam weryfikacje do", other_address)
-
-                mes = "check" + str(coords)
-                server_socket.sendto(mes.encode('utf-8'), other_address)
+                other_address = [addr for addr in players if addr != tuple_sender]
+                if other_address:
+                    print("klient", tuple_sender, "strzela na koordynaty: ", coords)
+                    print("wysylam weryfikacje do", other_address[0])
+    
+                    mes = "check" + str(coords)
+                    server_socket.sendto(mes.encode('utf-8'), other_address[0])
 
             elif mess.lower().startswith("result"):
                 array = mess.split(';')

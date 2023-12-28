@@ -48,32 +48,34 @@ def main():
                 client_socket.sendto(message.encode('utf-8'), server_address)
 
             elif response.startswith("check"):
-                coords = response.removeprefix("check").replace('[', '').replace(']', '').replace("'", "").split(",")
-                x_coord = coords[0]
-                y_coords = coords[1]
+                try:
+                    coords = response.removeprefix("check").replace('[', '').replace(']', '').replace("'", "").split(",")
+                    x_coord = coords[0]
+                    y_coords = coords[1]
 
-                clear_console()
-                print("Przeciwnik strzela na:", x_coord, ',', y_coords)
+                    if is_ship_hit(board, int(x_coord), int(y_coords)):
+                        clear_console()
+                        is_successful = True
+                        print("PRZECIWNIK TRAFIŁ W STATEK")
+                        update_board(board, int(x_coord), int(y_coords), "H")
+                        print_board(board, shots_board)
+                    else:
+                        clear_console()
+                        is_successful = False
+                        print("PRZECIWNIK UDERZYŁ W WODĘ")
+                        update_board(board, int(x_coord), int(y_coords), "M")
+                        print_board(board, shots_board)
 
-                if is_ship_hit(board, int(x_coord), int(y_coords)):
-                    is_successful = True
-                    print("PRZECIWNIK TRAFIŁ W STATEK")
-                    update_board(board, int(x_coord), int(y_coords), "H")
-                    print_board(board, shots_board)
-                else:
-                    is_successful = False
-                    print("PRZECIWNIK UDERZYŁ W WODĘ")
-                    update_board(board, int(x_coord), int(y_coords), "M")
-                    print_board(board, shots_board)
+                    print("Przeciwnik strzelił na:", x_coord, ',', y_coords)
+                    msg = "result;" + str(is_successful) + ';from;' + str(client_address) + ";coord;" + str(coords)
+                    client_socket.sendto(msg.encode('utf-8'), server_address)
 
-                msg = "result;" + str(is_successful) + ';from;' + str(client_address) + ";coord;" + str(coords)
-                client_socket.sendto(msg.encode('utf-8'), server_address)
-
-                if has_game_ended(board):
-                    print("GRA ZAKOŃCZONA, PORAŻKA")
-                    client_socket.sendto("koniec_wygrales".encode('utf-8'), server_address)
-                    play_again()
-
+                    if has_game_ended(board):
+                        print("GRA ZAKOŃCZONA, PORAŻKA")
+                        client_socket.sendto("koniec_wygrales".encode('utf-8'), server_address)
+                        play_again()
+                except UnboundLocalError:
+                    continue
             elif response.lower().startswith("update"):
                 array = response.split(";")
                 coords = array[1]
