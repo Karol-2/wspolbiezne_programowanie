@@ -1,5 +1,6 @@
 import os
 import klient_boardsets as boards
+import klient_make_board as myboard
 
 
 def has_game_ended(board):
@@ -51,17 +52,23 @@ def get_shot(shot_board):
 
 
 def choose_board():
-    board_number = input("Wybierz jeden z gotowych rozkładów, napisz 1 albo 2: ")
+    print("Stwórz stwoją planszę, możesz użyć gotowych rozkładów lub samemu je stworzyć:")
+    print("Napisz 1 - jeśli chcesz stworzyc swoją")
+    print("Napisz 2 - jeśli chcesz wybrać gotowy zestaw nr.1")
+    print("Napisz 3 - jeśli chcesz wybrać gotowy zestaw nr.2")
+    option = input("Twój wybór: ")
     try:
-        board_number = int(board_number)
-        if board_number == 1:
+        option = int(option)
+        if option == 1:
+            board = myboard.make_user_board()
+        elif option == 2:
             board = boards.board1
         else:
             board = boards.board2
 
         return board
     except ValueError:
-        print("Podaj 1 albo 2")
+        print("Podaj liczbę od 1 do 3")
         choose_board()
 
 
