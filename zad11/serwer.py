@@ -75,8 +75,12 @@ def main():
                 mes = "update;" + coords + ";" + str(result)
 
                 server_socket.sendto(mes.encode('utf-8'), other_address)
-                server_socket.sendto("czekasz".encode('utf-8'), other_address)
-                server_socket.sendto("strzelasz".encode('utf-8'), tuple_sender)
+                if result == "False":
+                    server_socket.sendto("czekasz".encode('utf-8'), other_address)
+                    server_socket.sendto("strzelasz".encode('utf-8'), tuple_sender)
+                else:
+                    server_socket.sendto("czekasz".encode('utf-8'), tuple_sender)
+                    server_socket.sendto("strzelasz".encode('utf-8'), other_address)
 
             elif mess.lower() == "koniec_wygrales":
                 other_address = [addr for addr in players if addr != address]
@@ -98,13 +102,14 @@ def main():
 
         except socket.error as e:
             print(f"Socket error: {e}")
-            other_address = [addr for addr in players]
-            if other_address:
-                message = "koniec".encode('utf-8')
-                for addr in other_address:
-                    server_socket.sendto(message, addr)
+            # other_address = [addr for addr in players]
+            # if other_address:
+            #     message = "koniec".encode('utf-8')
+            #     for addr in other_address:
+            #         server_socket.sendto(message, addr)
 
             players = {}
+            exit()
 
 
 if __name__ == "__main__":

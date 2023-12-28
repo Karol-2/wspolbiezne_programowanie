@@ -30,6 +30,7 @@ def main():
                 shots_board = generate_shots_board(10, 10)
                 show_rules()
                 board = choose_board()
+                clear_console()
                 print_board(board, shots_board)
 
             elif response == "czekasz":
@@ -37,7 +38,7 @@ def main():
 
             elif response == "strzelasz":
                 print("Twoja kolej")
-                x_coord, y_coord, end_game = get_shot()
+                x_coord, y_coord, end_game = get_shot(shots_board)
                 if end_game:
                     print("KONIEC, PODDAJESZ SIĘ")
                     client_socket.sendto("koniec_wygrales".encode('utf-8'), server_address)
