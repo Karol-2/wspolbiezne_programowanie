@@ -98,6 +98,8 @@ def show_rules():
     print("Plansza twoich strzałów")
     print("\tZnak 'H' oznacza celny strzał")
     print("\tZnak 'M' oznacza niecelny strzał")
+    input("Naciśnij ENTER aby kontynuować: ")
+    clear_console()
 
 
 def clear_console():

@@ -53,6 +53,7 @@ def main():
                     x_coord = coords[0]
                     y_coords = coords[1]
 
+                    print("=" * 80)
                     if is_ship_hit(board, int(x_coord), int(y_coords)):
                         clear_console()
                         is_successful = True
@@ -83,6 +84,7 @@ def main():
 
                 coords_array = ast.literal_eval(coords)
                 clear_console()
+                print("=" * 80)
                 if result == "True":
                     print("Strzał na", coords_array, "jest TRAFNY!")
                     sign = "H"
