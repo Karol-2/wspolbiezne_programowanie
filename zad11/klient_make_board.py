@@ -5,19 +5,20 @@ def print_board(board):
         print(i, " ".join(rowB))
 
 
-
 def is_valid_position(board, x, y, ship_size, orientation):
     if orientation.lower() == "h":
         if y + ship_size > 10:
             return False
         for i in range(ship_size):
-            if board[x][y + i] != "-" or (x > 0 and board[x - 1][y + i] != "-") or (x < 9 and board[x + 1][y + i] != "-"):
+            if board[x][y + i] != "-" or (x > 0 and board[x - 1][y + i] != "-") or (
+                    x < 9 and board[x + 1][y + i] != "-"):
                 return False
     elif orientation.lower() == "v":
         if x + ship_size > 10:
             return False
         for i in range(ship_size):
-            if board[x + i][y] != "-" or (y > 0 and board[x + i][y - 1] != "-") or (y < 9 and board[x + i][y + 1] != "-"):
+            if board[x + i][y] != "-" or (y > 0 and board[x + i][y - 1] != "-") or (
+                    y < 9 and board[x + i][y + 1] != "-"):
                 return False
     return True
 
@@ -48,6 +49,14 @@ def place_ship(board, ship_size):
             print("Niepoprawne dane. Spróbuj ponownie.")
 
 
+def convert_to_x(board):
+    for i in range(len(board)):
+        for j in range(len(board[i])):
+            if board[i][j].isdigit():
+                board[i][j] = "X"
+    return board
+
+
 def make_user_board():
     board = [["-" for _ in range(10)] for _ in range(10)]
 
@@ -56,6 +65,8 @@ def make_user_board():
     for ship_size in ship_sizes:
         print_board(board)
         place_ship(board, ship_size)
+
+    board = convert_to_x(board)
 
     print("Twoja plansza statków:")
     print_board(board)
