@@ -3,8 +3,11 @@ import socket
 
 from klient_helpers import *
 
+global my_room_id
+my_room_id = ""
 
 def main():
+    global my_room_id
     IP = "127.0.0.1"
     PORT = 5001
     BUF_SIZE = 1024
@@ -25,13 +28,34 @@ def main():
             if response == "connect":
                 print("Polaczono z serwerem, czekamy na przeciwnika")
                 print("Mój adres to: ", client_address)
-            elif response == "start":
+            elif response.startswith("start"):
+                my_room_id = response.split(";")[1]
+                action = response.split(';')[2]
+                print(action)
+
+                print("Room id:",my_room_id)
                 print("GRA ROZPOCZĘTA")
                 shots_board = generate_shots_board(10, 10)
                 show_rules()
                 board = choose_board()
                 clear_console()
                 print_board(board, shots_board)
+
+                if action == "czekasz":
+                    print("Teraz jest kolej twojego przeciwnika, czekamy na ruch...")
+                elif action == "strzelasz":
+                    print("Twoja kolej")
+                    x_coord, y_coord, end_game = get_shot(shots_board)
+                    if end_game:
+                        print("KONIEC, PODDAJESZ SIĘ")
+                        client_socket.sendto("koniec_wygrales".encode('utf-8'), server_address)
+                        play_again()
+
+                    message = "strzal " + "(" + str(x_coord) + "," + str(y_coord) + ");" + str(
+                        client_address) + ";" + my_room_id
+                    client_socket.sendto(message.encode('utf-8'), server_address)
+                else:
+                    print("error podczas pobierania wiadomości")
 
             elif response == "czekasz":
                 print("Teraz jest kolej twojego przeciwnika, czekamy na ruch...")
@@ -44,12 +68,12 @@ def main():
                     client_socket.sendto("koniec_wygrales".encode('utf-8'), server_address)
                     play_again()
 
-                message = "strzal " + "(" + str(x_coord) + "," + str(y_coord) + ");" + str(client_address)
+                message = "strzal " + "(" + str(x_coord) + "," + str(y_coord) + ");" + str(client_address) + ";" + my_room_id
                 client_socket.sendto(message.encode('utf-8'), server_address)
 
             elif response.startswith("check"):
                 try:
-                    coords = response.removeprefix("check").replace('[', '').replace(']', '').replace("'", "").split(",")
+                    coords = response.split(';')[0].removeprefix("check").replace('[', '').replace(']', '').replace("'", "").split(",")
                     x_coord = coords[0]
                     y_coords = coords[1]
 
