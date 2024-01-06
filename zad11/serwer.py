@@ -15,9 +15,6 @@ def main():
     server_socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
     server_socket.bind((IP, PORT))
 
-    players = {}
-
-
     print("Serwer UDP jest uruchomiony")
     print(f"Oczekiwanie na graczy")
 
@@ -28,30 +25,31 @@ def main():
             mess = data.decode('utf-8')
 
             if mess == "connect":
-                players[address] = mess
                 print(f"Połączył się nowy gracz: {address}")
 
-                print(add_player_to_rooms(address))
+                can_start = add_player_to_rooms(address)
 
                 server_socket.sendto("connect".encode('utf-8'), address)
 
-            if len(rooms) != 0 and rooms[0].player1 and rooms[0].player2 and not rooms[0].gameStarted:
-                print("Pokój", rooms[0].id, "| GRA ZACZYNA SIĘ")
-                rooms[0].gameStarted = True;
+                if can_start and find_room(address):
+                    found_room, _ = find_room(address)
+                    if not found_room.gameStarted:
+                        print("Pokój", found_room.id, "| GRA ZACZYNA SIĘ")
+                        update_game_started(found_room.id, True)
 
-                first_address = rooms[0].player1
-                second_address = rooms[0].player2
+                        first_address = found_room.player1
+                        second_address = found_room.player2
 
-                message = "start;"+rooms[0].id
+                        message = "start;" + found_room.id
 
-                if random.randint(0, 1):  # losowanie kto zaczyna
-                    print("Pokój", rooms[0].id, "|Gracz zaczyna", first_address)
-                    server_socket.sendto((message + ";strzelasz").encode('utf-8'), first_address)
-                    server_socket.sendto((message + ";czekasz").encode('utf-8'), second_address)
-                else:
-                    print("Pokój", rooms[0].id, "|Gracz zaczyna", second_address)
-                    server_socket.sendto((message + ";strzelasz").encode('utf-8'), second_address)
-                    server_socket.sendto((message + ";czekasz").encode('utf-8'), first_address)
+                        if random.randint(0, 1):  # losowanie kto zaczyna
+                            print("Pokój", found_room.id, "|Gracz zaczyna", first_address)
+                            server_socket.sendto((message + ";strzelasz").encode('utf-8'), first_address)
+                            server_socket.sendto((message + ";czekasz").encode('utf-8'), second_address)
+                        else:
+                            print("Pokój", found_room.id, "|Gracz zaczyna", second_address)
+                            server_socket.sendto((message + ";strzelasz").encode('utf-8'), second_address)
+                            server_socket.sendto((message + ";czekasz").encode('utf-8'), first_address)
 
             elif mess.lower().startswith("strzal"):
 
@@ -65,7 +63,7 @@ def main():
                 if other_address:
                     print("Pokój", room.id, "|Gracz", sender_address, "strzela na koordynaty: ", coords)
                     print("Pokój", room.id, "|Wysyłam weryfikacje strzalu do", other_address)
-    
+
                     mes = "check" + str(coords) + ';' + room.id
                     server_socket.sendto(mes.encode('utf-8'), other_address)
 
@@ -99,41 +97,56 @@ def main():
                 if other_address:
                     print("Pokój", room.id, "|Gracz", other_address, "wygrywa!")
                     server_socket.sendto("wygrana".encode('utf-8'), other_address)
-                    players = {}
-                    # usun pokoj
+                    remove_room_by_id(room.id)
 
             elif mess.lower() == "koniec":
                 room, player_number = find_room(address)
                 other_address = find_other_player_address(room, player_number)
                 if other_address:
-
                     server_socket.sendto("koniec".encode('utf-8'), other_address)
 
-                players.pop(address, None)
                 print(f"Pokój", room.id, "|Gra zakończona przez gracza {address}.")
-                players = {}
-                # usun pokooj
+                remove_room_by_id(room.id)
 
         except socket.error as e:
             print(f"Socket error: {e}")
-            players = {}
             exit()
 
 
+def remove_room_by_id(room_id):
+    global rooms
+    rooms = [room for room in rooms if room.id != room_id]
+    print(f"Rozgrywka w pokoju ${room_id} zakończona")
+
+
 def add_player_to_rooms(player):
+    can_start = False
     for room in rooms:
         if not room.gameStarted:
             if not room.player1:
                 room.player1 = player
-                return f"Added {player} as player 1 to existing room {room.id}"
+                print(f"Dodano {player} jako player 1 do pokoju {room.id}")
+                return can_start
+
             elif not room.player2:
                 room.player2 = player
-                return f"Added {player} as player 2 to existing room {room.id}"
+                can_start = True
+                print(f"Dodano {player} jako player 2 do pokoju {room.id}")
+                return can_start
 
     new_room = GameRoom()
     new_room.player1 = player
     rooms.append(new_room)
-    return f"Created a new room ({new_room.id}) and added {player} as player 1"
+    print(f"Stworzono nowy pokój ({new_room.id}) i dodano {player} jako player 1")
+    return can_start
+
+
+def update_game_started(room_id, new_value):
+    global rooms
+    for room in rooms:
+        if room.id == room_id:
+            room.gameStarted = new_value
+            break
 
 
 def find_other_player_address(room, player_number):
@@ -142,7 +155,7 @@ def find_other_player_address(room, player_number):
     elif room and player_number == 2:
         return room.player1
     else:
-        print("Error, problem with finding matching room!")
+        print("Error, nie można znaleźć pasującego pokoju!")
         return None
 
 
