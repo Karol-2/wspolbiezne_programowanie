@@ -30,8 +30,13 @@ def get_shot(shot_board):
     try:
         print("Podaj swój strzał")
         x_coord = input("Podaj koordynat x: ")
+
+        if x_coord == "koniec":
+            return -1, -1, True
+
         y_coord = input("Podaj koordynat y: ")
-        if x_coord == "koniec" or y_coord == "koniec":
+
+        if y_coord == "koniec":
             return -1, -1, True
 
         x_coord = int(x_coord)

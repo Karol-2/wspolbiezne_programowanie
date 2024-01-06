@@ -107,6 +107,8 @@ def main():
 
                 print(f"Pokój", room.id, "|Gra zakończona przez gracza {address}.")
                 remove_room_by_id(room.id)
+            else:
+                print("ERROR, Serwer otrzymał niewłaściwą wiadomość:",mess)
 
         except socket.error as e:
             print(f"Socket error: {e}")
