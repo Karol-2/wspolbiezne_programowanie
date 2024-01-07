@@ -32,24 +32,24 @@ def main():
             elif response.startswith("start"):
                 my_room_id = response.split(";")[1]
                 action = response.split(';')[2]
-                print(action)
 
                 print("Room id:", my_room_id)
                 print("GRA ROZPOCZĘTA")
+
                 shots_board = generate_shots_board(10, 10)
                 show_rules()
                 board = choose_board()
                 clear_console()
                 print_board(board, shots_board)
 
-                if action == "czekasz":
+                if action == "wait":
                     print("Teraz jest kolej twojego przeciwnika, czekamy na ruch...")
-                elif action == "strzelasz":
+                elif action == "shoot":
                     print("Twoja kolej")
                     x_coord, y_coord, end_game = get_shot(shots_board)
                     if end_game:
-                        print("KONIEC, PODDAJESZ SIĘ")
-                        client_socket.sendto("koniec_wygrales".encode('utf-8'), server_address)
+                        print("end, PODDAJESZ SIĘ")
+                        client_socket.sendto("end_you_won".encode('utf-8'), server_address)
                         play_again()
 
                     message = "strzal " + "(" + str(x_coord) + "," + str(y_coord) + ");" + str(
@@ -58,17 +58,17 @@ def main():
                 else:
                     print("error podczas pobierania wiadomości")
 
-            elif response == "czekasz":
+            elif response == "wait":
                 print("Teraz jest kolej twojego przeciwnika, czekamy na ruch...")
 
-            elif response == "strzelasz":
+            elif response == "shoot":
                 print("Twoja kolej")
                 if not has_game_ended(shots_board):
                     x_coord, y_coord, end_game = get_shot(shots_board)
 
                     if end_game:
-                        print("KONIEC, PODDAJESZ SIĘ")
-                        client_socket.sendto("koniec_wygrales".encode('utf-8'), server_address)
+                        print("end, PODDAJESZ SIĘ")
+                        client_socket.sendto("end_you_won".encode('utf-8'), server_address)
                         play_again()
 
                     message = "strzal " + "(" + str(x_coord) + "," + str(y_coord) + ");" + str(client_address) + ";" + my_room_id
@@ -100,7 +100,7 @@ def main():
 
                     if has_game_ended(board):
                         print("GRA ZAKOŃCZONA, PORAŻKA")
-                        client_socket.sendto("koniec_wygrales".encode('utf-8'), server_address)
+                        client_socket.sendto("end_you_won".encode('utf-8'), server_address)
                         play_again()
                 except UnboundLocalError:
                     continue
@@ -124,7 +124,7 @@ def main():
             elif response.lower() == "wygrana":
                 print("WYGRAŁEŚ!!!")
                 play_again()
-            elif response == "koniec":
+            elif response == "end":
                 play_again()
             else:
                 print("Oczekiwanie na ruch...")

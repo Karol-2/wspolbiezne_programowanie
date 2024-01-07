@@ -44,12 +44,12 @@ def main():
 
                         if random.randint(0, 1):  # losowanie kto zaczyna
                             print("Pokój", found_room.id, "|Gracz zaczyna", first_address)
-                            server_socket.sendto((message + ";strzelasz").encode('utf-8'), first_address)
-                            server_socket.sendto((message + ";czekasz").encode('utf-8'), second_address)
+                            server_socket.sendto((message + ";shoot").encode('utf-8'), first_address)
+                            server_socket.sendto((message + ";wait").encode('utf-8'), second_address)
                         else:
                             print("Pokój", found_room.id, "|Gracz zaczyna", second_address)
-                            server_socket.sendto((message + ";strzelasz").encode('utf-8'), second_address)
-                            server_socket.sendto((message + ";czekasz").encode('utf-8'), first_address)
+                            server_socket.sendto((message + ";shoot").encode('utf-8'), second_address)
+                            server_socket.sendto((message + ";wait").encode('utf-8'), first_address)
 
             elif mess.lower().startswith("strzal"):
 
@@ -83,13 +83,13 @@ def main():
                     mes = "update;" + coords + ";" + str(result) + ";" + room.id
                     server_socket.sendto(mes.encode('utf-8'), other_address)
                 if result == "False":
-                    server_socket.sendto("czekasz".encode('utf-8'), other_address)
-                    server_socket.sendto("strzelasz".encode('utf-8'), sender_address)
+                    server_socket.sendto("wait".encode('utf-8'), other_address)
+                    server_socket.sendto("shoot".encode('utf-8'), sender_address)
                 else:
-                    server_socket.sendto("czekasz".encode('utf-8'), sender_address)
-                    server_socket.sendto("strzelasz".encode('utf-8'), other_address)
+                    server_socket.sendto("wait".encode('utf-8'), sender_address)
+                    server_socket.sendto("shoot".encode('utf-8'), other_address)
 
-            elif mess.lower() == "koniec_wygrales":
+            elif mess.lower() == "end_you_won":
 
                 room, player_number = find_room(address)
                 other_address = find_other_player_address(room, player_number)
@@ -99,16 +99,17 @@ def main():
                     server_socket.sendto("wygrana".encode('utf-8'), other_address)
                     remove_room_by_id(room.id)
 
-            elif mess.lower() == "koniec":
+            elif mess.lower() == "end":
                 room, player_number = find_room(address)
                 other_address = find_other_player_address(room, player_number)
                 if other_address:
-                    server_socket.sendto("koniec".encode('utf-8'), other_address)
+                    server_socket.sendto("end".encode('utf-8'), other_address)
 
                 print(f"Pokój", room.id, "|Gra zakończona przez gracza {address}.")
                 remove_room_by_id(room.id)
             else:
                 print("ERROR, Serwer otrzymał niewłaściwą wiadomość:",mess)
+                server_socket.sendto("ERROR, Serwer otrzymał niewłaściwą wiadomość".encode('utf-8'), address)
 
         except socket.error as e:
             print(f"Socket error: {e}")
