@@ -72,4 +72,3 @@ def make_user_board():
     print_board(board)
     return board
 
-# board = make_user_board()

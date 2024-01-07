@@ -1,12 +1,13 @@
 import os
+
 import klient_boardsets as boards
 import klient_make_board as myboard
 
 
 def has_game_ended(board):
     h_counter = 0
-    # MAX_NUMBER_OF_X = 20 TODO: uncomment this
-    MAX_NUMBER_OF_X = 3
+    MAX_NUMBER_OF_X = 20
+    # MAX_NUMBER_OF_X = 3
     for row in board:
         for place in row:
             if place == "H":
